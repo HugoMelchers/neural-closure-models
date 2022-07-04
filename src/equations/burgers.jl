@@ -16,8 +16,6 @@ end
 `burgers_jameson(u, p, t = nothing)`
 
 Computes the right-hand side of the discretised Burgers equation using A. Jameson's flux scheme.
-todo before commit: reference
-
 This implementation is not in-place and is not the most efficient, but is differentiable with Zygote.
 """
 function burgers_jameson(u, p, t=nothing)
@@ -35,9 +33,6 @@ end
 
 Computes the right-hand side of the discretised Burgers equation using A. Jameson's flux scheme.
 The result is placed in `du`.
-todo before commit: reference
-todo before commit: add comments showing the intermediate values of `r1`, `r2`, and `du`
-
 This implementation is in-place and more efficient than `burgers_jameson`, but not differentiable.
 """
 function burgers_jameson!(du, u, p, t=nothing)
@@ -45,13 +40,15 @@ function burgers_jameson!(du, u, p, t=nothing)
     Δx = p.Δx
     r1 = fwd(u)
     r2 = r1 - u
+
+    # compute convection fluxes into r2
     @. r2 *= abs(u + r1) / 4 - r2 / 12
     @. r2 -= (r1^2 + u * r1 + u^2) / 6
     r2 ./= Δx
 
+    # compute diffusion term into du, then add convection term
     diff2!(du, u)
     du .*= ν / Δx^2
-
     du .+= Δbwd(r2)
 
     du
