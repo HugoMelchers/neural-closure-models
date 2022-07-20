@@ -13,7 +13,7 @@ function createfulllorenz96data()
     hy = 1.0f0
     params = Lorenz96Params(K, J, f, ε, hx, hy)
 
-    Δt = T / Nₜ
+    Δt = T / (Nₜ - 1)
     t⃗ = range(0, T; length=Nₜ)
 
     odeproblem = ODEProblem(

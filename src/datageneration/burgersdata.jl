@@ -9,7 +9,7 @@ function createfullburgersdata()
     Nₚ = 128        # Number of trajectories to generate
 
     Δx = L / Nₓ
-    Δt = T / Nₜ
+    Δt = T / (Nₜ - 1)
     x⃗ = centeredrange(0, L; length=Nₓ)
     t⃗ = range(0, T; length=Nₜ)
 
@@ -45,7 +45,7 @@ function createreducedburgersdata()
         solutions_reduced = zeros(Float32, Kₓ, Kₜ, Nₚ)
         derivatives_reduced = zeros(Float32, Kₓ, Kₜ, Nₚ)
         Δx₂ = L / Kₓ
-        Δt₂ = T / Kₜ
+        Δt₂ = T / (Kₜ - 1)
         Sₓ = Int64(Nₓ / Kₓ)
         Sₜ = Int64((Nₜ - 1) / (Kₜ - 1))
         x⃗₂ = centeredrange(0, L; length=Kₓ)
