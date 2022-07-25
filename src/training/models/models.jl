@@ -1,0 +1,6 @@
+includet("closure_model.jl")
+includet("discrete.jl")
+includet("ks_pseudospectral.jl")
+includet("neural_ode.jl")
+includet("split_neural_odes.jl")
+includet("with_memory.jl")

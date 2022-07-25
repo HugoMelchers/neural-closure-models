@@ -104,8 +104,9 @@ Zygote.@adjoint diff2(u) = diff2(u), ū -> (diff2(ū),)
 """
 `rootmeansquare(A; dims)`
 
-Computes the root mean square (RMS) of the given K-dimensional array `A` along the given axes `dims`. The result is an
-array of dimension K, with size 1 along each dimension in `dims`.
+Computes the root mean square (RMS) of the given K-dimensional array `A` along the given axes `dims`. The result is
+an array of dimension K, with size 1 along each dimension in `dims`. If `dims` is not given, the root mean square is
+computed over all dimensions of the array, returning a scalar.
 """
 function rootmeansquare(A; dims)
     num::Int64 = prod(size(A)[[dims...]])
@@ -113,11 +114,6 @@ function rootmeansquare(A; dims)
     @. sqrt(sumsq / num)
 end
 
-"""
-`rootmeansquare(A)`
-
-Computes the root mean square (RMS) of the given array.
-"""
 function rootmeansquare(A)
     num = length(A)
     sqrt(sum(abs2, A) ./ num)
@@ -136,7 +132,7 @@ function scalederror(y::AbstractArray{T,3}, ŷ::AbstractArray{T,3}) where {T}
 end
 
 """
-`valid_prediction_time(y, ŷ; f=0.4f0)`
+`validpredictiontime(y, ŷ; f=0.4f0)`
 
 Given 3-dimensional arrays of actual trajectories `y` and predicted trajectories `ŷ`, compute for each trajectory the
 first index where the prediction error relative to the 2-norm of `y` exceeds the given threshold.
@@ -151,6 +147,27 @@ Arguments:
 function validpredictiontime(y::AbstractArray{T,3}, ŷ::AbstractArray{T,3}; f=0.4f0) where {T}
     errs = scalederror(y, ŷ)
     map(col -> findfirst(col .>= f), eachcol(errs))
+end
+
+"""
+`validpredictiontime(y, ŷ; f=0.4f0)`
+
+Given 2-dimensional arrays of an actual trajectory `y` and predicted trajectory `ŷ`, compute for this trajectory the
+first index where the prediction error relative to the 2-norm of `y` exceeds the given threshold.
+
+Arguments:
+- `y`: 2-dimensional array of actual trajectories
+- `ŷ`: 2-dimensional array of predicted trajectories
+- `f`: threshold relative to 2-norm of `y` (default = 0.4)
+
+`y` and `ŷ` should be 2-dimensional arrays of equal sizes with indices ordered (`x`, timestamp, problem)
+"""
+function validpredictiontime(y::AbstractArray{T,2}, ŷ::AbstractArray{T,2}; f=0.4f0) where {T}
+    validpredictiontime(
+        reshape(y, size(y)..., 1),
+        reshape(ŷ, size(ŷ)..., 1);
+        f
+    )[1]
 end
 
 """

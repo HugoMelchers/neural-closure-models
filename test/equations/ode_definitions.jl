@@ -1,8 +1,3 @@
-include("$(pwd())/src/common.jl")
-include("$(pwd())/src/equations/burgers.jl")
-include("$(pwd())/src/equations/kuramotosivashinsky.jl")
-include("$(pwd())/src/equations/lorenz96.jl")
-
 """
 Test that the in-place definitions of the Burgers, Kuramoto-Sivashinsky, and Lorenz '96 ODEs compute the same derivative
 as the out-of-place definitions. Note that in their current implementations, the in-place and out-of-place
@@ -23,7 +18,7 @@ end
 function max_error(f_in_place!, f_out_of_place, u_prototype, params; N=1000)
     errors = []
     du1 = similar(u_prototype)
-    for i in 1:N
+    for _ in 1:N
         u = similar(u_prototype)
         u[:] = randn(eltype(u_prototype), length(u_prototype))
         f_in_place!(du1, u, params)

@@ -1,1 +1,5 @@
+# training data folder will contain very large data files that cannot be stored in git
 trainingdata
+
+# my own justfile (https://github.com/casey/just)
+.justfile
