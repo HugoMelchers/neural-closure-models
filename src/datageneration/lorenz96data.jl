@@ -27,8 +27,8 @@ function createfulllorenz96data()
         saveat=t⃗
     )
 
-    isdir("$(pwd())/trainingdata") || mkdir("$(pwd())/trainingdata")
-    jldopen("$(pwd())/trainingdata/lorenz96.full.jld2", "w") do outfile
+    isdir("trainingdata") || mkdir("trainingdata")
+    jldopen("trainingdata/lorenz96.full.jld2", "w") do outfile
         outfile["parameters"] = (; T, Nₜ, Nₚ, Δt, t⃗, params)
 
         iter = ProgressBar(1:Nₚ)
@@ -49,24 +49,35 @@ end
 
 function createreducedlorenz96data()
     Kₜ = 601
-    jldopen("$(pwd())/trainingdata/lorenz96.full.jld2") do infile
+    jldopen("trainingdata/lorenz96.full.jld2") do infile
         (; T, Nₜ, Nₚ, Δt, t⃗, params) = infile["parameters"]
-        solutions_reduced = zeros(Float32, params.K, Kₜ, Nₚ)
+        K = params.K
+        J = params.J
+        solutions_reduced = zeros(Float32, K, Kₜ, Nₚ)
+        derivatives_reduced = zeros(Float32, K, Kₜ, Nₚ)
         Δt₂ = (T - 1.6f0) / (Kₜ - 1)
         Sₜ = Int64((Nₜ - 161) / (Kₜ - 1))
         t⃗₂ = range(0, T - 1.6f0; length=Kₜ)
 
-        jldopen("$(pwd())/trainingdata/lorenz96.reduced.jld2", "w") do outfile
-            outfile["parameters"] = (; T, Nₜ=Kₜ, Nₚ, Δt=Δt₂, t⃗=t⃗₂)
+        jldopen("trainingdata/lorenz96.reduced.jld2", "w") do outfile
+            outfile["parameters"] = (; T, Nₜ=Kₜ, Nₚ, Δt=Δt₂, t⃗=t⃗₂, params)
 
             iter = ProgressBar(1:Nₚ)
             set_description(iter, "Down-sampling")
             for iₚ ∈ iter
-                sol_full = infile["solutions/$iₚ"][:, 160:end]
-                sol_reduced = sol_full[1:18, 1:4:end]
+                sol_full = infile["solutions/$iₚ"][:, 160:4:end]
+                sol_reduced = sol_full[1:K, :]
                 solutions_reduced[:, :, iₚ] = sol_reduced
+
+                for iₜ in 1:size(sol_reduced, 2)
+                    xₜ = sol_full[1:K, iₜ]
+                    yₜ = reshape(sol_full[(K+1):end, iₜ], J, K)
+                    uₜ = ComponentArray(x = xₜ, y = yₜ)
+                    derivatives_reduced[:, iₜ, iₚ] = lorenz96(uₜ, params).x
+                end
             end
             outfile["solutions"] = solutions_reduced
+            outfile["derivatives"] = derivatives_reduced
         end
     end
     nothing

@@ -21,8 +21,8 @@ function createfullburgersdata()
         saveat=t⃗
     )
 
-    isdir("$(pwd())/trainingdata") || mkdir("$(pwd())/trainingdata")
-    jldopen("$(pwd())/trainingdata/burgers.full.jld2", "w") do outfile
+    isdir("trainingdata") || mkdir("trainingdata")
+    jldopen("trainingdata/burgers.full.jld2", "w") do outfile
         outfile["parameters"] = (; L, T, ν, Nₓ, Nₜ, Nₚ, Δx, Δt, x⃗, t⃗)
 
         iter = ProgressBar(1:Nₚ)
@@ -40,7 +40,7 @@ end
 function createreducedburgersdata()
     Kₓ = 64
     Kₜ = 33
-    jldopen("$(pwd())/trainingdata/burgers.full.jld2") do infile
+    jldopen("trainingdata/burgers.full.jld2") do infile
         (; L, T, ν, Nₓ, Nₜ, Nₚ, Δx, Δt, x⃗, t⃗) = infile["parameters"]
         solutions_reduced = zeros(Float32, Kₓ, Kₜ, Nₚ)
         derivatives_reduced = zeros(Float32, Kₓ, Kₜ, Nₚ)
@@ -52,7 +52,7 @@ function createreducedburgersdata()
         t⃗₂ = range(0, T; length=Kₜ)
         derivative = BurgersParams(ν, Δx)
 
-        jldopen("$(pwd())/trainingdata/burgers.reduced.jld2", "w") do outfile
+        jldopen("trainingdata/burgers.reduced.jld2", "w") do outfile
             outfile["parameters"] = (; L, T, ν, Nₓ=Kₓ, Nₜ=Kₜ, Nₚ, Δx=Δx₂, Δt=Δt₂, x⃗=x⃗₂, t⃗=t⃗₂)
 
             iter = ProgressBar(1:Nₚ)

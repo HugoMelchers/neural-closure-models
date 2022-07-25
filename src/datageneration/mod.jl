@@ -1,4 +1,4 @@
-using FFTW
+using FFTW, Revise
 
 """
 Returns a random array of length `N` with entries of type `T` whose Fourier transform only has non-zero entries for the
@@ -29,6 +29,24 @@ Reduce the size of `data` in the second dimension by only taking each `S`-th ent
 """
 function decimate(data::Matrix{T}, S) where {T}
     (Nₓ, Nₜ) = size(data)
+
+    # Compute the new number of snapshots in the training data
+    # This line throws an error if `size(data, 2) - 1` is not a multiple of `S`
     Kₜ = Int64((Nₜ - 1) / S)
     data[:, 1:S:end]
+end
+
+includet("burgersdata.jl")
+includet("ksdata.jl")
+includet("lorenz96data.jl")
+
+function generatetrainingdata()
+    createfullburgersdata()
+    createreducedburgersdata()
+
+    createfullksdata()
+    createreducedburgersdata()
+
+    createfulllorenz96data()
+    createreducedlorenz96data()
 end

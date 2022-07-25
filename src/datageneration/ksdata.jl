@@ -20,8 +20,8 @@ function createfullksdata()
         saveat=t⃗
     )
 
-    isdir("$(pwd())/trainingdata") || mkdir("$(pwd())/trainingdata")
-    jldopen("$(pwd())/trainingdata/kuramotosivashinsky.full.jld2", "w") do outfile
+    isdir("trainingdata") || mkdir("trainingdata")
+    jldopen("trainingdata/kuramotosivashinsky.full.jld2", "w") do outfile
         outfile["parameters"] = (; L, T, Nₓ, Nₜ, Nₚ, Δx, Δt, x⃗, t⃗)
 
         iter = ProgressBar(1:Nₚ)
@@ -39,7 +39,7 @@ end
 function createreducedksdata()
     Kₓ = 128
     Kₜ = 513
-    jldopen("$(pwd())/trainingdata/kuramotosivashinsky.full.jld2") do infile
+    jldopen("trainingdata/kuramotosivashinsky.full.jld2") do infile
         (; L, T, Nₓ, Nₜ, Nₚ, Δx, Δt, x⃗, t⃗) = infile["parameters"]
         solutions_reduced = zeros(Float32, Kₓ, Kₜ, Nₚ)
         derivatives_reduced = zeros(Float32, Kₓ, Kₜ, Nₚ)
@@ -51,7 +51,7 @@ function createreducedksdata()
         t⃗₂ = range(0, T; length=Kₜ)
         derivative = KSParams(Δx)
 
-        jldopen("$(pwd())/trainingdata/kuramotosivashinsky.reduced.jld2", "w") do outfile
+        jldopen("trainingdata/kuramotosivashinsky.reduced.jld2", "w") do outfile
             outfile["parameters"] = (; L, T, Nₓ=Kₓ, Nₜ=Kₜ, Nₚ, Δx=Δx₂, Δt=Δt₂, x⃗=x⃗₂, t⃗=t⃗₂)
 
             iter = ProgressBar(1:Nₚ)
