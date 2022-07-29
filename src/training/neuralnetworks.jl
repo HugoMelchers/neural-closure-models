@@ -1,5 +1,7 @@
 """
 Creates the small 57-parameter CNN used in the experiments of Chapter 4.
+
+todo: replace this implementation by one that calls `basic_cnn_1d`
 """
 function create_basic_nn(K=9)
     Chain(
@@ -12,6 +14,8 @@ end
 
 """
 Creates the 'large' 533-parameter CNN used in the experiments of Chapters 4, 5, and 6.
+
+todo: replace this implementation by one that calls `basic_cnn_1d`
 """
 function create_deep_wide_nn(K=5)
     Chain(
@@ -28,6 +32,8 @@ end
 
 """
 Creates the 853-parameter CNN used in the Lipschitz-regularisation tests of Chapter 5.
+
+todo: replace this implementation by one that calls `basic_cnn_1d`
 """
 function create_linear_nn(K=5)
     Chain(

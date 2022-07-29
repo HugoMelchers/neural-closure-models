@@ -6,6 +6,7 @@ import Base.sqrt
 using Revise
 
 includet("utils.jl")
+includet("integrators.jl")
 includet("equations/mod.jl")
 includet("plotting.jl")
 includet("training/train.jl")

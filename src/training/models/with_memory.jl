@@ -138,7 +138,7 @@ name(rkp::RKPredictor) = "RKPredictor($(name(rkp.integrator)))"
 function (rkp::RKPredictor)(v, Δt, r)
     # step of chosen integrator for du/dt = f(u), plus NN correction
     (; f, p, integrator) = rkp
-    u = v[:, end, :]
+    u = v[:, end:end, :]
     integrator(f, u, p, Δt) .+ Δt .* r
 end
 
