@@ -1,5 +1,6 @@
 # training data folder will contain very large data files that cannot be stored in git
-trainingdata
+trainingdata/*.jld2
+!trainingdata/*.reduced.jld2
 
 # my own justfile (https://github.com/casey/just)
 .justfile
