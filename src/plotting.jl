@@ -1,7 +1,7 @@
 using Plots
 
 """
-`diffmap(D; kwargs...)`
+    diffmap(D; kwargs...)
 
 Similar to `heatmap`, but sets the color gradient and scale so that 0 corresponds to white, negative values to blue, and
 positive values to red. This is useful when making a heatmap of a difference, since then larger absolute differences are
@@ -13,7 +13,7 @@ function diffmap(D; kwargs...)
 end
 
 """
-`diffmap(xs, ys, D; kwargs...)`
+    diffmap(xs, ys, D; kwargs...)
 
 Similar to `heatmap`, but sets the color gradient and scale so that 0 corresponds to white, negative values to blue, and
 positive values to red. This is useful when making a heatmap of a difference, since then larger absolute differences are
@@ -25,7 +25,7 @@ function diffmap(xs, ys, D; kwargs...)
 end
 
 """
-`vpt_heatmap(ts, xs, y, ŷ; f=0.4f0, diff=false, kwargs...)`
+    vpt_heatmap(ts, xs, y, ŷ; f=0.4f0, diff=false, kwargs...)
 
 Create a heatmap of a predicted trajectory or a diffmap of a prediction error, with a vertical line indicating the VPT.
 

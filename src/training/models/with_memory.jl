@@ -25,7 +25,7 @@ neuralnetwork(model::ANODEModel) = neuralnetwork(model.inner)
 name(model::ANODEModel) = "ANODE model, Nₓ×$(model.Nₕ) latent variables"
 
 function _derivative(model::ANODEModel, xh)
-    (; inner, Nₕ, f, integrator, Δt, λ) = model
+    (; inner, f, λ) = model
     x = @view xh[:, 1:1, :]
     h = @view xh[:, 2:end, :]
     dxh2 = inner(xh)
@@ -38,7 +38,7 @@ function _derivative(model::ANODEModel, xh)
 end
 
 function (model::ANODEModel)(x)
-    (; inner, Nₕ, f, integrator, Δt) = model
+    (; integrator, Δt) = model
     integrator(
         (u, p) -> _derivative(model, u), x, nothing, Δt
     )
@@ -53,9 +53,12 @@ function warmup(model::ANODEModel, X::AbstractArray{Float32, 3}; inith = :zero)
         zeros(Float32, Nₓ, Nₕ, Nₚ)
     elseif inith == :randn
         randn(Float32, Nₓ, Nₕ, Nₚ)
+    else
+        # default to zero-initialised latent vector if `inith` is not one :zero or :randn
+        zeros(Float32, Nₓ, Nₕ, Nₚ)
     end
     v = hcat(x₀, h₀)
-    for iᵣ ∈ 2:Nᵣ
+    for iᵣ in 2:Nᵣ
         ṽ = model(v)
         uᵢ = X[:, iᵣ:iᵣ, :]
         v = hcat(uᵢ, ṽ[:, 2:end, :])
@@ -69,7 +72,7 @@ function _predict(model::ANODEModel, v₀::AbstractArray{Float32, 3}, Nₜ)
     W = zeros(Float32, Nₓ, 0, Nₚ)
 
     vᵢ = v₀
-    for i ∈ 1:Nₜ
+    for _ in 1:Nₜ
         vᵢ = model(vᵢ)
         uᵢ = vᵢ[:, 1:1, :]
         W = hcat(W, uᵢ)
@@ -78,7 +81,13 @@ function _predict(model::ANODEModel, v₀::AbstractArray{Float32, 3}, Nₜ)
 end
 
 """
-`predict(model::ANODEModel, u0, t⃗, cfg)`
+    predict(model::ANODEModel, u0::AbstractArray{Float32, 3}, t⃗, cfg)
+
+Uses the `model` to predict a trajectory from the initial states `u0`. Note that unlike memory-less models, `u0`
+should contain a sequence of snapshots in order to 'warm up' the ANODE model, and `t⃗` should *not* include the time
+stamps corresponding to the warmup data. The `cfg` argument should be either `nothing` or a NamedTuple with a single
+field `inith`, set to either `:zero` or `:randn`, which determines whether the latent vector `h` of the ANODE model is
+initialised as all zeros or randomly.
 """
 function predict(model::ANODEModel, u0::AbstractArray{Float32, 3}, t⃗, cfg)
     inith = if cfg === nothing
@@ -106,10 +115,10 @@ neuralnetwork(model::DiscreteDelayModel) = neuralnetwork(model.inner)
 name(model::DiscreteDelayModel) = "windowmodel(history=$(model.Nₕ), extrapolation=$(name(model.predictor)))"
 
 function _predict(model::DiscreteDelayModel, v₀::AbstractArray{Float32, 3}, Nₜ)
-    Nₓ, ~, Nₚ = size(v₀)
+    Nₓ, _, Nₚ = size(v₀)
     W::Array{Float32, 3} = zeros(Float32, Nₓ, 0, Nₚ)
     v::Array{Float32, 3} = v₀
-    for iₜ ∈ 1:Nₜ
+    for _ in 1:Nₜ
         u::Array{Float32, 3} = model.predictor(v, model.Δt, model(v))
         W = hcat(W, reshape(u, Nₓ, 1, Nₚ))
         v = hcat(v[:, 2:end, :], u)
@@ -118,7 +127,13 @@ function _predict(model::DiscreteDelayModel, v₀::AbstractArray{Float32, 3}, N�
 end
 
 """
-`predict(model::DiscreteDelayModel, u0, t⃗, cfg)`
+    predict(model::DiscreteDelayModel, u0::AbstractArray{Float32, 3}, t⃗, _cfg)
+
+Uses the `model` to predict a trajectory from the initial states `u0`. Note that unlike memory-less models, `u0` should
+contain a sequence of snapshots in order to 'warm up' the discrete delay model, and `t⃗` should *not* include the time
+stamps corresponding to the warmup data. The `cfg` argument should be either `nothing` or a NamedTuple with a single
+field `inith`, set to either `:zero` or `:randn`, which determines whether the latent vector `h` of the delay model is
+initialised as all zeros or randomly.
 """
 function predict(model::DiscreteDelayModel, u0::AbstractArray{Float32, 3}, t⃗, _cfg)
     v₀ = u0[:, (end-model.Nₕ):end, :]
@@ -142,6 +157,27 @@ function (rkp::RKPredictor)(v, Δt, r)
     integrator(f, u, p, Δt) .+ Δt .* r
 end
 
+"""
+    train_memory!(
+        model::Union{ANODEModel, DiscreteDelayModel},
+        t⃗::AbstractVector{Float32},
+        X::AbstractArray{Float32, 3},
+        Y::AbstractArray{Float32, 3};
+        exit_condition::ExitCondition=exitcondition(1),
+        penalty::Penalty=NoPenalty(),
+        validation::Validation=NoValidation(),
+        batchsize=8,
+        opt=ADAM(),
+        loss=Flux.Losses.mse,
+        verbose=true,
+    )
+
+Trains the given `ANODEModel` or `DiscreteDelayModel`. `t⃗` should be a sequence of time steps corresponding only to the
+data to be predicted, and not to the snapshots used for warmup. `X` is the array of training data used for warmup, and
+`Y` is the data used for training. For example, given a 3D-array `T` of trajectories at time points `ts`, if
+`X = T[:, 1:40, :]`, meaning that the first 40 snapshots are used for warmup, then `Y` should be `T[:, 41:N, :]` and `t⃗`
+should be `ts[41:N]` for some value `N`.
+"""
 function train_memory!(
     model::Union{ANODEModel, DiscreteDelayModel},
     t⃗::AbstractVector{Float32},
@@ -155,7 +191,6 @@ function train_memory!(
     loss=Flux.Losses.mse,
     verbose=true,
 )
-    Nₜ = size(X, 2)
     Nₚ = size(X, 3)
 
     starts = 1:batchsize:Nₚ

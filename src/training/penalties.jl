@@ -30,6 +30,8 @@ import Base:*
 *(p::Penalty, λ::Real) = ScaledPenalty(p, Float32(λ))
 
 """
+    normsquared(arr)
+
 Computes the sum of squares of an array or Flux.Params object.
 """
 normsquared(arr::AbstractArray{T}) where T = sum(abs2, arr)
@@ -40,28 +42,26 @@ struct L2Penalty{PS} <: Penalty
 end
 (p::L2Penalty)() = sum(normsquared, p.params)
 
-"""
-Methods to turn neural network layers into linearised versions. For standard convolutional layers, the linearised layer
-is the same but without biases or activation functions. For other 'simple' layers that are already linear, `linearise`
-does nothing.
-"""
 linearise(::typeof(Δfwd)) = Δfwd
 linearise(layer::ScaleLayer) = layer
-linearise(layer::ReshapeLayer) = layer
 linearise(layer::IdentityLayer) = layer
 linearise(layer::CyclicPadLayer) = layer
 linearise(conv::Flux.Conv) = Flux.Conv(conv.weight, false, identity)
 
 """
+    linearise(model::Flux.Chain)
+
 A function that 'linearises' a neural network, by stripping out all nonlinearities in the convolutional layers.
 The weights of the convolutional layers are preserved, but the biases and activation functions are removed.
-All layers in the network that are already linear (i.e. `ScaleLayers`, `Δfwd`, and so on) are preserved.
+All layers in the network that are already linear (i.e. `ScaleLayer`, `Δfwd`, and so on) are preserved.
 """
 linearise(model::Flux.Chain) = Flux.Chain([linearise(layer) for layer in model.layers]...)
 
 real2(z) = max(0.0, real(z))^2
 
 """
+    eigenvalues(n, linmodel)
+
 Computes the eigenvalues of a linear convolutional neural network. This is done efficiently by only passing a single
 input vector to the neural network and computing the Fourier transform of the output. This method for computing the
 eigenvalues only produces correct results for networks that are fully convolutional and linear, i.e. do not have biases

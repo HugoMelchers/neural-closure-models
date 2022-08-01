@@ -13,12 +13,13 @@ neuralnetwork(model::ClosureModel) = neuralnetwork(model.inner)
 name(model::ClosureModel) = model.name
 
 """
-`predict(model::ClosureModel, u0, t⃗, cfg)`
+    predict(model::ClosureModel, u0, t⃗, cfg=(;))
 
-todo before commit: check `cfg` to allow using either the standard `InterpolatingAdjoint` from `DiffEqFlux` or my own
-`SplitNeuralODE`?
-Actually, may not want to do that since the predict methods are generally not differentiable so don't need to do that
-here either.
+Computes the predicted trajectory of the neural closure model `du/dt = model(u)`, from the initial state `u0`. The
+solution is saved at time points `t⃗[2:end]`, where `u0` is the state at `t⃗[1]`. Additional keyword arguments to the
+`solve` call can be passed in `cfg`. By default, no ODE solver is specified meaning that the ODE solver used is chosen
+by `DifferentialEquations.jl`. In practice in order to make use of the split ODE formulation one should use a split ODE
+solver such as `KenCarp47`.
 """
 function predict(model::ClosureModel, u0, t⃗, cfg=(;))
     prob = SplitODEProblem(
@@ -31,12 +32,43 @@ function predict(model::ClosureModel, u0, t⃗, cfg=(;))
     )
 
     sol = solve(prob; cfg...)
-    result = Array(sol)[:, 1, :, 2:end]
+    result = Array(sol)[:, 1, :, 2:end]::Array{Float32, 3}
     permutedims(result, (1, 3, 2))
 end
 
 """
-todo before commit: docstring
+    train_closure!(
+        model::ClosureModel,
+        t⃗::AbstractVector{Float32},
+        solutions::AbstractArray{Float32,3};
+        exit_condition::ExitCondition=exitcondition(1),
+        penalty::Penalty=NoPenalty(),
+        validation::Validation=NoValidation(),
+        batchsize=8,
+        opt=ADAM(),
+        loss=Flux.Losses.mse,
+        verbose::Bool=true,
+        kwargs_fw=(; alg=KenCarp47(nlsolve=NLAnderson())),
+        kwargs_bw=(; alg=KenCarp47(nlsolve=NLAnderson())),
+    )
+
+Trains the given neural closure model `model` on the 3-dimensional array `solutions`. `solutions` should be a 3-dimensional array
+with dimensions ordered as variable index, time stamp, problem index.
+
+The following keyword arguments can be provided:
+
+- `exit_condition`: an `ExitCondition` object containing a maximum number of epochs to train for as well as an optional
+  patience parameter for early stopping. Default: 1 epoch, no early stopping
+- `penalty`: an optional `Penalty` object that adds a penalty (regularisation) term to the loss function. Default: no
+  penalty term
+- `validation`: an optional `Validation` object that computes the model error on some validation data. Default: no
+  validation
+- `batchsize`: the size of batches to use during training. Defaults to 8
+- `opt`: the optimiser to use. Defaults to `ADAM()`
+- `loss`: the loss function that compares predicted and actual trajectories. Defaults to mean square error
+- `verbose`: whether to show a progress bar during training. Defaults to true
+- `kwargs_fw`: keyword arguments to supply to the ODE `solve` call for the forward ODEs
+- `kwargs_bw`: keyword arguments to supply to the ODE `solve` call for the backward (adjoint) ODEs
 """
 function train_closure!(
     model::ClosureModel,
@@ -56,8 +88,7 @@ function train_closure!(
     remainder = @view solutions[:, 2:end, :]
     trainingdata = Flux.DataLoader((initial, remainder); batchsize)
 
-    ps_internal = Flux.params(model.inner)
-    (ps_nn_ode, re) = Flux.destructure(model.inner)
+    (ps_nn_ode, re) = Flux.destructure(neuralnetwork(model))
     ps = Flux.params(ps_nn_ode,)
     dudt_nn = (u, p, _t) -> re(p)(u)
     prob_nn_ode = SplitNeuralODE(model.f, dudt_nn, t⃗, kwargs_fw, kwargs_bw)

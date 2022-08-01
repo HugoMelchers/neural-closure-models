@@ -23,6 +23,8 @@ end
 neuralnetwork(model::KSPSClosureModel) = neuralnetwork(model.inner)
 
 """
+    ks_etdrk_model(N, l, Δt, inner, order, name)
+
 Creates a `DiscreteModel` that performs a time step by taking one time step of the pseudospectral Kuramoto-Sivashinsky
 equation using an ETDRK integrator.
 Parameters:
@@ -39,7 +41,7 @@ function ks_etdrk_model(N, l, Δt, inner, order, name)
     λ⃗ = @. k^2 - k^4
     g = @. -im * k / 2
 
-    integrator_constructor = [ETDRK.etdrk1, ETDRK.etdrk2, ETDRK.etdrk3, ETDRK.etdrk4][order]
+    integrator_constructor = [etdrk1, etdrk2, etdrk3, etdrk4][order]
     integrator = integrator_constructor(λ⃗, Δt)
 
     DiscreteModel(KSPSClosureModel(inner, g, integrator), name)

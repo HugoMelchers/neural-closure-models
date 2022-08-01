@@ -14,7 +14,7 @@ begin # create neural closure model and train with derivative fitting
     model = ClosureModel(nn, f, "Neural closure model (KS)")
     alg=KenCarp47(nlsolve=NLAnderson())
     @info "Training neural closure model (derivative fitting, RMSE validation)"
-    train_continuous_derivative!(
+    r = train_continuous_derivative!(
         model, solutions[:, 33:73, 1:8], derivatives[:, 33:73, 1:8];
         exit_condition=ExitCondition(10, nothing),
         validation=trajectory_rmse(model, solutions[:, 33:73, 1:8], parameters.t⃗[33:73], (; alg))
@@ -27,7 +27,7 @@ begin # create neural closure model and train with SplitNeuralODE using KenCarp4
     model = ClosureModel(nn, f, "Neural closure model (KS)")
     alg=KenCarp47(nlsolve=NLAnderson())
     @info "Training neural closure model (RMSE validation)"
-    train_closure!(
+    r = train_closure!(
         model, parameters.t⃗[33:73], solutions[:, 33:73, 1:8];
         kwargs_fw = (; alg),
         kwargs_bw = (; alg),
@@ -87,7 +87,7 @@ begin # train some pseudospectral closure models for KS
     @info "Training pseudospectral model"
     train_discrete!(
         model, parameters.t⃗[33:73], solutions[:, 33:73, 1:8];
-        exit_condition=ExitCondition(100, nothing),
+        exit_condition=ExitCondition(10, nothing),
         validation=trajectory_rmse(model, solutions[:, 33:73, :], parameters.t⃗[33:73], nothing)
     )
 end

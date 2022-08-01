@@ -26,7 +26,7 @@ ReducedLorenz96Params(params::Lorenz96Params) = ReducedLorenz96Params(params.K, 
 (params::ReducedLorenz96Params)(u) = lorenz96(u, params)
 
 """
-`lorenz96(u, params::Lorenz96Params, t=nothing)`
+    lorenz96(u, params::Lorenz96Params, t=nothing)
 
 Computes the right-hand side of the full Lorenz '96 ODE system.
 """
@@ -56,7 +56,7 @@ function lorenz96(u, params::Lorenz96Params, t=nothing)
 end
 
 """
-`lorenz96!(du, u, params::Lorenz96Params, t=nothing)`
+    lorenz96!(du, u, params::Lorenz96Params, t=nothing)
 
 Computes the right-hand side of the full Lorenz '96 ODE system in-place, storing the result in `du`.
 """
@@ -95,7 +95,7 @@ function lorenz96!(du, u, params::Lorenz96Params, t=nothing)
 end
 
 """
-`lorenz96(u, params::ReducedLorenz96Params, t=nothing)`
+    lorenz96(u, params::ReducedLorenz96Params, t=nothing)
 
 Computes the right-hand side of the reduced Lorenz '96 ODE system.
 """
@@ -109,7 +109,7 @@ function lorenz96(u, params::ReducedLorenz96Params, t=nothing)
 end
 
 """
-`lorenz96!(du, u, params::ReducedLorenz96Params, t=nothing)`
+    lorenz96!(du, u, params::ReducedLorenz96Params, t=nothing)
 
 Computes the right-hand side of the reduced Lorenz '96 ODE system in-place, storing the result in `du`.
 """

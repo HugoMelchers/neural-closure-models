@@ -13,7 +13,7 @@ end
 (params::BurgersParams)(u) = burgers_jameson(u, params)
 
 """
-`burgers_jameson(u, p, t = nothing)`
+    burgers_jameson(u, p, t=nothing)
 
 Computes the right-hand side of the discretised Burgers equation using A. Jameson's flux scheme.
 This implementation is not in-place and is not the most efficient, but is differentiable with Zygote.
@@ -29,7 +29,7 @@ function burgers_jameson(u, p, t=nothing)
 end
 
 """
-`burgers_jameson!(du, u, p, t = nothing)`
+    burgers_jameson!(du, u, p, t=nothing)
 
 Computes the right-hand side of the discretised Burgers equation using A. Jameson's flux scheme.
 The result is placed in `du`.

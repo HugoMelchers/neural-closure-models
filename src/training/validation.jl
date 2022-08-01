@@ -6,7 +6,7 @@ be callable with the current epoch number as the single argument. It should then
 - `missing` if validation is done but not for this epoch, for example if validation is only done every 10 epochs
 - the actual validation error as a `Float32`
 
-The validation error does not have to be a type of (root-) mean-square error, but lower errors have to `better` than
+The validation error does not have to be a type of (root-) mean-square error, but lower errors have to 'better' than
 higher errors for early stopping to work correctly.
 """
 abstract type Validation end
@@ -18,19 +18,21 @@ struct NoValidation <: Validation end
 A struct that evaluates the given model on the given trajectories and returns the root mean square error between the 
 predicted and actual trajectories. 
 """
-struct TrajectoryRMSE{M, CFG} <: Validation
+struct TrajectoryRMSE{M,T1<:AbstractArray{Float32,3},T2<:AbstractVector{Float32},T3<:AbstractArray{Float32,3},CFG} <: Validation
     model::M
-    initial::AbstractArray{Float32, 3}
-    t⃗::AbstractVector{Float32}
-    remainder::AbstractArray{Float32, 3}
+    initial::T1
+    t⃗::T2
+    remainder::T3
     cfg::CFG
 end
-function (vl::TrajectoryRMSE)(_epoch)
+function (vl::TrajectoryRMSE)(_)
     ŷ = predict(vl.model, vl.initial, vl.t⃗, vl.cfg)
     rootmeansquare(vl.remainder .- ŷ)
 end
 
 """
+    trajectory_rmse(model, data, t⃗, cfg)
+
 Returns a `TrajectoryRMSE` object that can be called to compute the root mean square error between the actual
 trajectories in `data`, and the predicted trajectories predicted by the `model`.
 """
@@ -40,24 +42,26 @@ trajectory_rmse(model, data, t⃗, cfg) = TrajectoryRMSE(model, data[:, 1:1, :],
 A struct that evalutes the given model on the given trajectories and returns the mean Valid Prediction Time over all
 test trajectories. Note that the result is negated, so that the output still satisfies that lower values are better.
 """
-struct TrajectoryVPT{M, CFG} <: Validation
+struct TrajectoryVPT{M,T1<:AbstractArray{Float32,3},T2<:AbstractVector{Float32},T3<:AbstractArray{Float32,3},CFG} <: Validation
     model::M
-    initial::AbstractArray{Float32, 3}
-    t⃗::AbstractVector{Float32}
-    remainder::AbstractArray{Float32, 3}
+    initial::T1
+    t⃗::T2
+    remainder::T3
     cfg::CFG
 end
-function (vl::TrajectoryVPT)(_epoch)
+function (vl::TrajectoryVPT)(_)
     ŷ = predict(vl.model, vl.initial, vl.t⃗, vl.cfg)
     vpt_indices = validpredictiontime(vl.remainder, ŷ)
 
     # replace `nothing` entries in the output (meaning that the error threshold is never exceeded) by the maximum index
-    vpt_indices[vpt_indices .=== nothing] .= size(vl.remainder, 2)
+    vpt_indices[vpt_indices.===nothing] .= size(vl.remainder, 2)
     vpts = [vl.t⃗[i+1] - vl.t⃗[begin] for i in vpt_indices]
     -sum(vpts) / length(vpts)
 end
 
 """
+    trajectory_vpt(model, data, t⃗, cfg)
+
 Returns a `TrajectoryVPT` object that can be called to compute the average valid prediction time of the `model`
 predictions and the actual predictions in `data`.
 """

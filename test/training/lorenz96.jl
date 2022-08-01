@@ -19,8 +19,9 @@ begin # train discrete delay model
     )
     r1 = train_memory!(
         model, t⃗[41:80], solutions[:, 1:40, 1:8], solutions[:, 41:80, 1:8];
-        exit_condition=ExitCondition(5000, nothing)
+        exit_condition=ExitCondition(100, nothing)
     )
+    nothing
 end
 
 begin # train ANODE model
@@ -30,6 +31,7 @@ begin # train ANODE model
     )
     r2 = train_memory!(
         model, t⃗[41:80], solutions[:, 1:40, 1:8], solutions[:, 41:80, 1:8];
-        exit_condition=ExitCondition(5000, nothing)
+        exit_condition=ExitCondition(100, nothing)
     )
+    nothing
 end

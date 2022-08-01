@@ -9,7 +9,7 @@ end
 (params::KSParams)(u) = kuramotosivashinsky(u, params)
 
 """
-`kuramotosivashinsky(u, p, t=nothing)`
+    kuramotosivashinsky(u, p, t=nothing)
 
 Computes the right-hand side of the discretised Kuramoto-Sivashinsky equation.
 This implementation only uses out-of-place array operations, so it is differentiable by Zygote but not the most efficient.
@@ -25,7 +25,7 @@ function kuramotosivashinsky(u, p, t=nothing)
 end
 
 """
-`kuramotosivashinsky!(du, u, p, t=nothing)`
+    kuramotosivashinsky!(du, u, p, t=nothing)
 
 Computes the right-hand side of the discretised Kuramoto-Sivashinsky equation, placing the result in `du`. This
 implementation is in-place, so it is more efficient than the out-of-place implementation but cannot be differentiated

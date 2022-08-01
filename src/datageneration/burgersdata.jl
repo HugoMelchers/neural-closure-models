@@ -27,7 +27,7 @@ function createfullburgersdata()
 
         iter = ProgressBar(1:Nₚ)
         set_description(iter, "Solving")
-        for iₚ ∈ iter
+        for iₚ in iter
             u0 = randominitialstate(Float32, Nₓ, 10)
             prob = remake(odeproblem; u0)
             sol_full = solve(prob; alg=Tsit5())
@@ -57,7 +57,7 @@ function createreducedburgersdata()
 
             iter = ProgressBar(1:Nₚ)
             set_description(iter, "Down-sampling")
-            for iₚ ∈ iter
+            for iₚ in iter
                 sol_full = infile["solutions/$iₚ"]
                 sol_reduced = blockaverage(decimate(sol_full, Sₜ), Sₓ)
                 solutions_reduced[:, :, iₚ] = sol_reduced

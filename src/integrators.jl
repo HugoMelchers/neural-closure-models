@@ -1,7 +1,7 @@
 # Implementations of four different Runge-Kutta (RK) methods for solving ODEs.
 
 """
-`euler(f, u, p, Δt)`
+    euler(f, u, p, Δt)
 
 Performs a single time step of size `Δt` of the ODE `du/dt = f(u, p)` using forward Euler, a first-order accurate
 1-stage ODE integrator.
@@ -12,7 +12,7 @@ end
 name(::typeof(euler)) = "forward euler"
 
 """
-`rk2(f, u, p, Δt)`
+    rk2(f, u, p, Δt)
 
 Performs a single time step of size `Δt` of the ODE `du/dt = f(u, p)` using Runge-Kutta 2, a second-order accurat
  2-stage ODE integrator.
@@ -25,7 +25,7 @@ end
 name(::typeof(rk2)) = "midpoint rule"
 
 """
-`rk3(f, u, p, Δt)`
+    rk3(f, u, p, Δt)
 
 Performs a single time step of size `Δt` of the ODE `du/dt = f(u, p)` using Runge-Kutta 3, a third-order accurate
 3-stage ODE integrator.
@@ -39,7 +39,7 @@ end
 name(::typeof(rk3)) = "Runge-Kutta 3"
 
 """
-`rk4(f, u, p, Δt)`
+    rk4(f, u, p, Δt)
 
 Performs a single time step of size `Δt` of the ODE `du/dt = f(u, p)` using Runge-Kutta 4, a fourth-order accurate
 4-stage ODE integrator.
@@ -77,6 +77,8 @@ struct ETDRK1{UType}
 end
 
 """
+    etdrk1(λ⃗, Δt)
+
 Creates a first-order accurate ETDRK scheme for the ODE du/dt = `λ⃗` .* u + (nonlinear term) with time step `Δt`.
 """
 function etdrk1(λ⃗, Δt)
@@ -103,6 +105,8 @@ struct ETDRK2{UType}
 end
 
 """
+    etdrk2(λ⃗, Δt)
+
 Creates a second-order accurate ETDRK scheme for the ODE du/dt = `λ⃗` .* u + (nonlinear term) with time step `Δt`.
 """
 function etdrk2(λ⃗, Δt)
@@ -138,6 +142,8 @@ struct ETDRK3{UType}
 end
 
 """
+    etdrk3(λ⃗, Δt)
+
 Creates a third-order accurate ETDRK scheme for the ODE du/dt = `λ⃗` .* u + (nonlinear term) with time step `Δt`.
 """
 function etdrk3(λ⃗, Δt)
@@ -180,6 +186,8 @@ struct ETDRK4{UType}
 end
 
 """
+    etdrk4(λ⃗, Δt)
+
 Creates a fourth-order accurate ETDRK scheme for the ODE du/dt = `λ⃗` .* u + (nonlinear term) with time step `Δt`.
 """
 function etdrk4(λ⃗, Δt)

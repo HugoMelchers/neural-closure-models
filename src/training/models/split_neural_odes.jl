@@ -1,5 +1,5 @@
 """
-A struct representing a neural closure model ODE problem of the form du/dt = f(u) + nn(u). Gradients are computed using
+A struct representing a neural closure model ODE problem of the form du/dt = f(u) + inner(u). Gradients are computed using
 the interpolating adjoint method, where both the forward and adjoint ODEs can be solved using a Split ODE solver.
 """
 struct SplitNeuralODE{F, Inner, TS, ArgsFW, ArgsBW}
@@ -22,9 +22,9 @@ end
 (adj::SplitNeuralODEAdjoint)(∇) = begin
     tstops = adj.ode.ts[1:end-1]
 
-    p = (f = adj.ode.f, nn = adj.ode.nn, ϑ = adj.ϑ, u = adj.sol)
+    p = (f = adj.ode.f, nn = adj.ode.inner, ϑ = adj.ϑ, u = adj.sol)
 
-    update_grads_condition(u, t, integrator) = t ∈ tstops
+    update_grads_condition(u, t, integrator) = t in tstops
     function update_grads_affect!(integrator)
         t = integrator.t
         i = findfirst(tstops .== t)

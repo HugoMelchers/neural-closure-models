@@ -9,6 +9,21 @@ begin # load data
     nothing
 end
 
+function make_table(table)
+    table = table .|> (x -> "$x")
+    widths = [4 + maximum(length, table[:, j]) for j in 1:size(table, 2)]
+    s = ""
+    for i in 1:size(table, 1)
+        for j in 1:size(table, 2)
+            entry = table[i, j]
+            padding = " " ^ (widths[j] - length(entry))
+            s *= entry * padding
+        end
+        s *= "\n"
+    end
+    return s
+end
+
 begin # load models trained and verify their accuracy
     @info "Loading trained models on Burgers' equation"
     params = load("trained-params/burgers.jld2")["params"]
@@ -62,4 +77,25 @@ begin
         for (model, cfg) in zip(nns, cfgs)
     ]
     rmses = [rootmeansquare(pred .- ytest) for pred in predictions]
+    nothing
+end
+
+begin # create and print table with RMSEs
+    descriptions = [
+        "u(t + Δt)         = nn(u)",
+        "(u(t+Δt)-u(t))/Δt = nn(u)",
+        "(u(t+Δt)-u(t))/Δt = Δnn(u)",
+        "(u(t+Δt)-u(t))/Δt = f(u) + nn(u)",
+        "(u(t+Δt)-u(t))/Δt = f(u) + Δnn(u)",
+        "du/dt             = nn(u)",
+        "du/dt             = Δnn(u)",
+        "du/dt             = f(u) + nn(u)",
+        "du/dt             = f(u) + Δnn(u)",
+    ]
+    permutation = [1, 2, 3, 6, 7, 4, 5, 8, 9]
+	table = [
+        "Form \\ NN size" "Small" "Large"
+        descriptions[permutation] round.(rmses[permutation, :], digits=4)
+    ]
+    @info "Burgers results:\n" * make_table(table)
 end

@@ -328,6 +328,12 @@ git-tree-sha1 = "fcbb72b032692610bfbdb15018ac16a36cf2e406"
 uuid = "adafc99b-e345-5852-983c-f28acb93d879"
 version = "0.3.1"
 
+[[deps.Cthulhu]]
+deps = ["CodeTracking", "FoldingTrees", "InteractiveUtils", "Preferences", "REPL", "UUIDs", "Unicode"]
+git-tree-sha1 = "567099322624f3f84099151030afb011c75fbb21"
+uuid = "f68482b8-f384-11e8-15f7-abe071a5a75f"
+version = "2.6.3"
+
 [[deps.DataAPI]]
 git-tree-sha1 = "fb5f5316dd3fd4c5e7c30a24d50643b73e37cd40"
 uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
@@ -605,6 +611,12 @@ deps = ["Adapt", "ArrayInterface", "CUDA", "ChainRulesCore", "Functors", "Linear
 git-tree-sha1 = "96dc065bf4a998e8adeebc0ff1302902b6e59362"
 uuid = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 version = "0.13.4"
+
+[[deps.FoldingTrees]]
+deps = ["AbstractTrees", "REPL"]
+git-tree-sha1 = "db17016023fd7d6a15267ac09ec420f952738b17"
+uuid = "1eca21be-9b9b-4ed8-839a-6d8ae26b1781"
+version = "1.2.0"
 
 [[deps.FoldsThreads]]
 deps = ["Accessors", "FunctionWrappers", "InitialValues", "SplittablesBase", "Transducers"]

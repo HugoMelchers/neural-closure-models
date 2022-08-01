@@ -14,7 +14,7 @@ struct ExitCondition
 end
 exitcondition(nr_epochs, patience=nothing) = ExitCondition(nr_epochs, patience)
 
-teacherforcingatepoch(c::Union{Nothing, Float32}, _epoch) = c
+teacherforcingatepoch(c::Float32, _) = c
 teacherforcingatepoch(f::Function, epoch) = f(epoch)
 
 """
@@ -22,7 +22,7 @@ Contains the results of a training procedure, including:
 
 - The exit condition (max number of epochs and optional patience parameter for early stopping)
 - The errors on the training and validation data sets for each epoch. The validation error is not necessarily computed
-    every epoch, so `error_validate` may be a shorter array than `error_train`
+  every epoch, so `error_validate` may be a shorter array than `error_train`
 - The best parameters of the model so far, including the epoch at which they were found and the corresponding error value
 - The total number of epochs trained so far
 - The current status (`:running`, `:too_long_without_improvement`, `:yielded_nan`, or `:max_epochs_reached`)
@@ -86,7 +86,7 @@ function TrainLog(ec::ExitCondition, ps::Params)
 end
 
 """
-`clone_with_params(model, params)`
+    clone_with_params(model, params)
 
 Given a `model` and model parameters `params`, create a copy of the model with the given parameters. `params` should
 be either a `Flux.Params` object with arrays of appropriate dimensions, or a 1-dimensional array of appropriate length
@@ -99,9 +99,12 @@ function clone_with_params(model, params)
 end
 
 """
-`set_params(model, params)`
+    set_params!(model, params::Flux.Params)
 
-Overwrites the parameters of the `model` to be equal to those in `params`.
+Overwrites the parameters of the `model` to be equal to those in `params`. `params` should contain an appropriate number
+of arrays of appropriate sizes, i.e.:
+
+    length.(Flux.params(neuralnetwork(model))) .== length.(params)
 """
 function set_params!(model, params::Flux.Params)
     params_write = Flux.params(neuralnetwork(model))
@@ -113,9 +116,12 @@ function set_params!(model, params::Flux.Params)
 end
 
 """
-`set_params(model, params)`
+    set_params!(model, params::AbstractVector{Float32})
 
-Overwrites the parameters of the `model` to be equal to those in `params`.
+Overwrites the parameters of the `model` to be equal to those in `params`. `params` should be a vector whose length
+equals the total number of parameters of `model`, i.e.:
+
+    sum(length, Flux.params(neuralnetwork(model))) == length(params)
 """
 function set_params!(model, params::AbstractVector{Float32})
     a = Flux.params(neuralnetwork(model))

@@ -33,7 +33,7 @@ function createfulllorenz96data()
 
         iter = ProgressBar(1:Nₚ)
         set_description(iter, "Solving")
-        for iₚ ∈ iter
+        for iₚ in iter
             u0 = ComponentArray(
                 x=randn(Float32, K),
                 y=randn(Float32, J, K)
@@ -64,7 +64,7 @@ function createreducedlorenz96data()
 
             iter = ProgressBar(1:Nₚ)
             set_description(iter, "Down-sampling")
-            for iₚ ∈ iter
+            for iₚ in iter
                 sol_full = infile["solutions/$iₚ"][:, 160:4:end]
                 sol_reduced = sol_full[1:K, :]
                 solutions_reduced[:, :, iₚ] = sol_reduced
@@ -72,7 +72,7 @@ function createreducedlorenz96data()
                 for iₜ in 1:size(sol_reduced, 2)
                     xₜ = sol_full[1:K, iₜ]
                     yₜ = reshape(sol_full[(K+1):end, iₜ], J, K)
-                    uₜ = ComponentArray(x = xₜ, y = yₜ)
+                    uₜ = ComponentArray(x=xₜ, y=yₜ)
                     derivatives_reduced[:, iₜ, iₚ] = lorenz96(uₜ, params).x
                 end
             end

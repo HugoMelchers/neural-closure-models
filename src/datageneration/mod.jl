@@ -1,6 +1,8 @@
 using FFTW, Revise
 
 """
+    randominitialstate(T, N, K)
+
 Returns a random array of length `N` with entries of type `T` whose Fourier transform only has non-zero entries for the
 `K` lowest frequencies.
 """
@@ -12,6 +14,8 @@ function randominitialstate(T, N, K)
 end
 
 """
+    blockaverage(data::Matrix{T}, S) where {T}
+
 Reduce the size of `data` in the first dimension by taking the average of blocks of `S` subsequent entries. This
 requires that `size(data, 1)` is an integer multiple of `S`.
 """
@@ -24,6 +28,8 @@ function blockaverage(data::Matrix{T}, S) where {T}
 end
 
 """
+    decimate(data::Matrix{T}, S) where {T}
+
 Reduce the size of `data` in the second dimension by only taking each `S`-th entry. This requires that
 `size(data, 2) - 1` is a multiple of `S`.
 """
@@ -40,6 +46,14 @@ includet("burgersdata.jl")
 includet("ksdata.jl")
 includet("lorenz96data.jl")
 
+"""
+    generatetrainingdata()
+
+Generates training data for all three equations. Note that this should not be necessary since the (down-sampled)
+training data is already included in the repository. Furthermore, overwriting the training data has the effect of
+changing the exact accuracies of already trained models, making it more difficult to verify that the results are still
+the same as earlier.
+"""
 function generatetrainingdata()
     createfullburgersdata()
     createreducedburgersdata()
