@@ -40,7 +40,7 @@ end
 function (model::ANODEModel)(x)
     (; integrator, Δt) = model
     integrator(
-        (u, p) -> _derivative(model, u), x, nothing, Δt
+        u -> _derivative(model, u), x, Δt
     )
 end
 
@@ -144,17 +144,16 @@ struct NoExtrapolator end
 (::NoExtrapolator)(v::AbstractArray{Float32, 3}, Δt, r) = r
 name(::NoExtrapolator) = "none"
 
-struct RKPredictor{F, P, I}
+struct RKPredictor{F, I}
     f::F
-    p::P
     integrator::I
 end
 name(rkp::RKPredictor) = "RKPredictor($(name(rkp.integrator)))"
 function (rkp::RKPredictor)(v, Δt, r)
     # step of chosen integrator for du/dt = f(u), plus NN correction
-    (; f, p, integrator) = rkp
+    (; f, integrator) = rkp
     u = v[:, end:end, :]
-    integrator(f, u, p, Δt) .+ Δt .* r
+    integrator(f, u, Δt) .+ Δt .* r
 end
 
 """

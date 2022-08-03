@@ -1,54 +1,54 @@
 # Implementations of four different Runge-Kutta (RK) methods for solving ODEs.
 
 """
-    euler(f, u, p, Δt)
+    euler(f, u, Δt)
 
-Performs a single time step of size `Δt` of the ODE `du/dt = f(u, p)` using forward Euler, a first-order accurate
-1-stage ODE integrator.
+Performs a single time step of size `Δt` of the ODE `du/dt = f(u)` using forward Euler, a first-order accurate 1-stage
+ODE integrator.
 """
-function euler(f, u, p, Δt)
-    u .+ Δt .* f(u, p)
+function euler(f, u, Δt)
+    u .+ Δt .* f(u)
 end
 name(::typeof(euler)) = "forward euler"
 
 """
-    rk2(f, u, p, Δt)
+    rk2(f, u, Δt)
 
-Performs a single time step of size `Δt` of the ODE `du/dt = f(u, p)` using Runge-Kutta 2, a second-order accurat
- 2-stage ODE integrator.
+Performs a single time step of size `Δt` of the ODE `du/dt = f(u)` using Runge-Kutta 2, a second-order accurate 2-stage
+ODE integrator.
 """
-function rk2(f, u, p, Δt)
-    k₁ = Δt .* f(u, p)
-    k₂ = Δt .* f(u .+ k₁./2, p)
+function rk2(f, u, Δt)
+    k₁ = Δt .* f(u)
+    k₂ = Δt .* f(u .+ k₁./2)
     u .+ k₂
 end
 name(::typeof(rk2)) = "midpoint rule"
 
 """
-    rk3(f, u, p, Δt)
+    rk3(f, u, Δt)
 
-Performs a single time step of size `Δt` of the ODE `du/dt = f(u, p)` using Runge-Kutta 3, a third-order accurate
-3-stage ODE integrator.
+Performs a single time step of size `Δt` of the ODE `du/ dt = f(u)` using Runge-Kutta 3, a third-order accurate 3-stage
+ODE integrator.
 """
-function rk3(f, u, p, Δt)
-    k₁ = Δt .* f(u, p)
-    k₂ = Δt .* f(u .+ k₁./2, p)
-    k₃ = Δt .* f(u .+ 2 .* k₂ .- k₁, p)
+function rk3(f, u, Δt)
+    k₁ = Δt .* f(u)
+    k₂ = Δt .* f(u .+ k₁./2)
+    k₃ = Δt .* f(u .+ 2 .* k₂ .- k₁)
     @. u + (k₁ + 4k₂ + k₃) / 6
 end
 name(::typeof(rk3)) = "Runge-Kutta 3"
 
 """
-    rk4(f, u, p, Δt)
+    rk4(f, u, Δt)
 
-Performs a single time step of size `Δt` of the ODE `du/dt = f(u, p)` using Runge-Kutta 4, a fourth-order accurate
-4-stage ODE integrator.
+Performs a single time step of size `Δt` of the ODE `du/dt = f(u)` using Runge-Kutta 4, a fourth-order accurate 4-stage
+ODE integrator.
 """
-function rk4(f, u, p, Δt)
-    k₁ = Δt .* f(u, p)
-    k₂ = Δt .* f(u .+ k₁./2, p)
-    k₃ = Δt .* f(u .+ k₂./2, p)
-    k₄ = Δt .* f(u .+ k₃, p)
+function rk4(f, u, Δt)
+    k₁ = Δt .* f(u)
+    k₂ = Δt .* f(u .+ k₁./2)
+    k₃ = Δt .* f(u .+ k₂./2)
+    k₄ = Δt .* f(u .+ k₃)
     @. u + (k₁ + 2k₂ + 2k₃ + k₄) / 6
 end
 name(::typeof(rk4)) = "Runge-Kutta 4"

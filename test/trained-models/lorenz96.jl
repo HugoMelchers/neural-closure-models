@@ -69,7 +69,7 @@ begin # recreate models
     for (nn, ps) in zip(nns, loaded)
         set_params!(nn, ps)
     end
-    predictor = RKPredictor((u, _p) -> f(u), nothing, rk4)
+    predictor = RKPredictor(f, rk4)
     ddmodels = [
         DiscreteDelayModel(nn, layers[1] - 1, Δt, predictor)
         for (nn, layers) in zip(nns[1:4], layercounts[1:4])
