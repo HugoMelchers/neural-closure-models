@@ -53,6 +53,46 @@ function rk4(f, u, Δt)
 end
 name(::typeof(rk4)) = "Runge-Kutta 4"
 
+"""
+    tsit5(f, u, Δt)
+
+Performs a single time step of size `Δt` of the ODE `du/dt = f(u)` using `Tsit5`, a fifth-order accurate 7-stage ODE
+integrator. Note that this integrator is meant to be used as an adaptive solver with an embedded 4-th order estimator.
+However, here it is not used as such. Instead, it is used purely to be able to use the same ODE solver as the default
+used by DifferentialEquations.jl, but in a way that can be differentiated using Zygote.
+"""
+function tsit5(f, u, Δt)
+    T = eltype(u)
+    A = [
+        0.0 0.0 0.0 0.0 0.0 0.0 0.0
+        0.161 0.0 0.0 0.0 0.0 0.0 0.0
+        -0.008480655492356989 0.335480655492357 0.0 0.0 0.0 0.0 0.0
+        2.8971530571054935 -6.359448489975075 4.3622954328695815 0.0 0.0 0.0 0.0
+        5.325864828439257 -11.748883564062828 7.4955393428898365 -0.09249506636175525 0.0 0.0 0.0
+        5.86145544294642 -12.92096931784711 8.159367898576159 -0.071584973281401 -0.028269050394068383 0.0 0.0
+        0.09646076681806523 0.01 0.4798896504144996 1.379008574103742 -3.290069515436081 2.324710524099774 0.0
+    ]
+    b = [
+        0.09468075576583945 0.009183565540343254 0.4877705284247616 1.234297566930479 -2.7077123499835256 1.866628418170587 0.015151515151515152
+    ]
+    s = 7
+    
+    ks = typeof(u)[]
+    for i in 1:s
+        inp = u
+        for j in 1:(i-1)
+            inp += convert(T, A[i, j]) .* ks[j]
+        end
+        ks = vcat(ks, [Δt * f(inp)])
+    end
+    result = u
+    for i in 1:s
+        result += convert(T, b[i]) .* ks[i]
+    end
+    result
+end
+name(::typeof(tsit5)) = "Tsit5"
+
 # Implementations of four Exponential Time-Differencing Runge-Kutta (ETDRK) methods. These methods are useful for ODEs
 # of the from du/dt = Λu + N(u), where Λ is a stiff pointwise linear function and N is a non-stiff non-linear function.
 # Λ should additionally mostly be stiff due to eigenvalues with large negative real components, so that the stiffness

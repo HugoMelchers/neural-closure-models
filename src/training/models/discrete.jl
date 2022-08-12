@@ -77,7 +77,7 @@ The following keyword arguments can be provided:
   penalty term
 - `validation`: an optional `Validation` object that computes the model error on some validation data. Default: no
   validation
-- batchsize`: the size of batches to use during training. Defaults to 8
+- `batchsize`: the size of batches to use during training. Defaults to 8
 - `opt`: the optimiser to use. Defaults to `ADAM()`
 - `loss`: the loss function that compares predicted and actual trajectories. Defaults to mean square error
 - `verbose`: whether to show a progress bar during training. Defaults to true
