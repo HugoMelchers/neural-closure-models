@@ -14,8 +14,9 @@ struct ExitCondition
 end
 exitcondition(nr_epochs, patience=nothing) = ExitCondition(nr_epochs, patience)
 
-teacherforcingatepoch(c::Float32, _) = c
-teacherforcingatepoch(f::Function, epoch) = f(epoch)
+teacherforcingatepoch(c::Real, _) = Float32(c)
+teacherforcingatepoch(f::Function, epoch) = Float32(f(epoch))
+teacherforcingatepoch(arr::AbstractArray{<:Real}, i) = Float32(arr[i])
 
 """
 Contains the results of a training procedure, including:
