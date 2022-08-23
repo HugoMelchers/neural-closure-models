@@ -84,10 +84,12 @@ begin # train some pseudospectral closure models for KS
     l = parameters.L
     Δt = parameters.Δt
     model = ks_etdrk_model(N, l, Δt, nn, 4, "ETDRK4 closure model")
+    trainingdata = fft(solutions[:, 33:73, 1:8], 1)
+    validationdata = fft(solutions[:, 33:73, :], 1)
     @info "Training pseudospectral model"
     train_discrete!(
-        model, parameters.t⃗[33:73], solutions[:, 33:73, 1:8];
+        model, parameters.t⃗[33:73], trainingdata;
         exit_condition=ExitCondition(10, nothing),
-        validation=trajectory_rmse(model, solutions[:, 33:73, :], parameters.t⃗[33:73], nothing)
+        validation=trajectory_rmse(model, validationdata, parameters.t⃗[33:73], nothing)
     )
 end

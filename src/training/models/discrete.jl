@@ -11,7 +11,7 @@ neuralnetwork(model::DiscreteModel) = neuralnetwork(model.inner)
 name(model::DiscreteModel) = model.name
 
 """
-    predict(model::DiscreteModel, u0, t⃗, cfg::Union{Nothing,Tuple{Float32,AbstractArray{Float32,3}}}=nothing)
+    predict(model::DiscreteModel, u0, t⃗, cfg::Union{Nothing,Tuple{Float32,AbstractArray{<:Number,3}}}=nothing)
 
 Uses the given `model` to predict a trajectory. The initial state `u0` is the state at time `t⃗[1]`, and the output will
 be a concatenation of the states at times `t⃗[2:end]`.
@@ -27,7 +27,7 @@ Arguments:
   alternative is to set `cfg` to a tuple (`r`, `ref`) where `r` is the teacher forcing rate (between 0 and 1) and `ref`
   is the array of reference solutions (excluding their initial states since those are equal to `u0`).
 """
-function predict(model::DiscreteModel, u0, t⃗, cfg::Union{Nothing,Tuple{Float32,AbstractArray{Float32,3}}}=nothing)
+function predict(model::DiscreteModel, u0, t⃗, cfg::Union{Nothing,Tuple{Float32,AbstractArray{<:Number,3}}}=nothing)
     (Nₓ, _, Nₚ) = size(u0)
     result = zeros(eltype(u0), Nₓ, 0, Nₚ)
     Nₜ = length(t⃗) - 1
@@ -50,7 +50,7 @@ end
     train_discrete!(
         model::DiscreteModel,
         t⃗::AbstractVector{Float32},
-        solutions::AbstractArray{Float32,3};
+        solutions::AbstractArray{<:Number,3};
         exit_condition::ExitCondition=exitcondition(1),
         penalty::Penalty=NoPenalty(),
         validation::Validation=NoValidation(),
@@ -88,7 +88,7 @@ The following keyword arguments can be provided:
 function train_discrete!(
     model::DiscreteModel,
     t⃗::AbstractVector{Float32},
-    solutions::AbstractArray{Float32,3};
+    solutions::AbstractArray{<:Number,3};
     exit_condition::ExitCondition=exitcondition(1),
     penalty::Penalty=NoPenalty(),
     validation::Validation=NoValidation(),

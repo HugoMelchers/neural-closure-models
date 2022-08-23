@@ -18,7 +18,7 @@ struct NoValidation <: Validation end
 A struct that evaluates the given model on the given trajectories and returns the root mean square error between the 
 predicted and actual trajectories. 
 """
-struct TrajectoryRMSE{M,T1<:AbstractArray{Float32,3},T2<:AbstractVector{Float32},T3<:AbstractArray{Float32,3},CFG} <: Validation
+struct TrajectoryRMSE{M,T<:Number,T1<:AbstractArray{T,3},T2<:AbstractVector{Float32},T3<:AbstractArray{T,3},CFG} <: Validation
     model::M
     initial::T1
     t⃗::T2
@@ -42,7 +42,7 @@ trajectory_rmse(model, data, t⃗, cfg) = TrajectoryRMSE(model, data[:, 1:1, :],
 A struct that evalutes the given model on the given trajectories and returns the mean Valid Prediction Time over all
 test trajectories. Note that the result is negated, so that the output still satisfies that lower values are better.
 """
-struct TrajectoryVPT{M,T1<:AbstractArray{Float32,3},T2<:AbstractVector{Float32},T3<:AbstractArray{Float32,3},CFG} <: Validation
+struct TrajectoryVPT{M,T<:Number,T1<:AbstractArray{T,3},T2<:AbstractVector{Float32},T3<:AbstractArray{T,3},CFG} <: Validation
     model::M
     initial::T1
     t⃗::T2
