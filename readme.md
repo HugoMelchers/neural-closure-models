@@ -1,3 +1,5 @@
+![Logo](neural-closure-models-logo.png)
+
 # Neural closure models
 
 ## About this repo
@@ -60,7 +62,7 @@ begin # load data
 end
 
 begin # create a neural closure model
-	nn = create_basic_nn()
+    nn = create_basic_nn()
     model = ClosureModel(
         nn, # neural network term
         f,  # non-neural network term
