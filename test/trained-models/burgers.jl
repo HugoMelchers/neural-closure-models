@@ -1,7 +1,9 @@
 begin # load data
     using JLD2
 
-    burgersdata = load("trainingdata/burgers.reduced.jld2")
+    burgersdata = load("trainingdata/burgers.reduced-33.jld2")
+    # The trained models from my master thesis were trained on Burgers equation with a 2x coarser temporal
+    # discretisation, so to validate these models we use the old data set instead of the new data.
     solutions = burgersdata["solutions"]
     parameters = burgersdata["parameters"]
     f = BurgersParams(parameters.ν, parameters.Δx)

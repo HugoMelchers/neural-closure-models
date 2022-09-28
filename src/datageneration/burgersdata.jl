@@ -39,7 +39,7 @@ end
 
 function createreducedburgersdata()
     Kₓ = 64
-    Kₜ = 33
+    Kₜ = 65
     jldopen("trainingdata/burgers.full.jld2") do infile
         (; L, T, ν, Nₓ, Nₜ, Nₚ, Δx, Δt, x⃗, t⃗) = infile["parameters"]
         solutions_reduced = zeros(Float32, Kₓ, Kₜ, Nₚ)

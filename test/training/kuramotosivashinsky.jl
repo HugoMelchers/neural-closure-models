@@ -92,4 +92,5 @@ begin # train some pseudospectral closure models for KS
         exit_condition=ExitCondition(10, nothing),
         validation=trajectory_rmse(model, validationdata, parameters.t⃗[33:73], nothing)
     )
+    nothing
 end
