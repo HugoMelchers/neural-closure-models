@@ -17,13 +17,14 @@ It includes code for:
     - Neural closure models: `du/dt = f(u) + model(u)`
     - Augmented Neural ODEs (ANODEs): `d/dt [u, h] = model(u, h)`
     - Discrete delay models: `u(t + Δt) = model(u(t), u(t - Δt), u(t - 2Δt), ..., u(t - kΔt))`
+- Training scripts to perform the numerical experiments from the associated paper (in folder `trainingscripts`)
 
 ## Installation
 
 0. Before cloning this repo, install [Git LFS](https://git-lfs.github.com/).
     This way, the down-sampled training data for the neural networks (~60MB) will be included in the repo.
 1. Install [Julia](https://julialang.org/downloads/).
-    This software was run with Julia version 1.7.3, although other 1.7.x versions should also work.
+    This software was run with Julia version 1.7.3, although newer versions and other 1.7.x versions should also work.
 2. Install dependencies by launching `julia` in this folder:
 
     ```shell
